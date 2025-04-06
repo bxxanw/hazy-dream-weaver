@@ -1,14 +1,18 @@
 
 import { useState } from 'react';
 import { Button } from './ui/button';
-import { Download, Loader } from 'lucide-react';
+import { Download, Loader, X } from 'lucide-react';
 import { downloadImage } from '../utils/storage';
+import { Progress } from './ui/progress';
+import { cancelGeneration } from '../services/huggingFaceService';
 
 interface ImageDisplayProps {
   imageUrl: string | null;
   isLoading: boolean;
   error: string | null;
   prompt: string;
+  progress: number;
+  onCancel: () => void;
 }
 
 export default function ImageDisplay({
@@ -16,6 +20,8 @@ export default function ImageDisplay({
   isLoading,
   error,
   prompt,
+  progress,
+  onCancel,
 }: ImageDisplayProps) {
   const [isImageLoaded, setIsImageLoaded] = useState(false);
 
@@ -26,12 +32,32 @@ export default function ImageDisplay({
     }
   };
 
+  const handleCancel = () => {
+    cancelGeneration();
+    onCancel();
+  };
+
   return (
     <div className="flex flex-col items-center justify-center glass-morphism rounded-lg overflow-hidden">
       {isLoading && (
-        <div className="flex flex-col items-center justify-center p-8 min-h-[300px]">
+        <div className="flex flex-col items-center justify-center p-8 min-h-[300px] w-full">
           <Loader className="h-12 w-12 animate-spin mb-4 text-primary" />
           <p className="text-center text-muted-foreground">Generating your image...</p>
+          
+          <div className="w-full max-w-md mt-4 space-y-2">
+            <Progress value={progress} className="h-2" />
+            <p className="text-center text-xs text-muted-foreground">{progress}% complete</p>
+          </div>
+          
+          <Button 
+            variant="destructive"
+            size="sm"
+            onClick={handleCancel}
+            className="mt-4"
+          >
+            <X className="h-4 w-4 mr-2" />
+            Cancel Generation
+          </Button>
         </div>
       )}
       
