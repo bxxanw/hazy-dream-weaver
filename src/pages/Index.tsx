@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import ApiKeyInput from '../components/ApiKeyInput';
@@ -8,6 +7,7 @@ import ResolutionOptions from '../components/ResolutionOptions';
 import GenerationOptions from '../components/GenerationOptions';
 import ImageDisplay from '../components/ImageDisplay';
 import HistoryDisplay from '../components/HistoryDisplay';
+import ExpoQRCode from '../components/ExpoQRCode';
 import { Button } from '../components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { toast } from '../components/ui/use-toast';
@@ -34,7 +34,6 @@ export default function Index() {
   const [history, setHistory] = useState<GeneratedImage[]>([]);
   const [activeTab, setActiveTab] = useState<string>('generate');
   
-  // Load history on mount
   useEffect(() => {
     loadHistory();
   }, []);
@@ -83,7 +82,6 @@ export default function Index() {
       if (imageUrl) {
         setGeneratedImageUrl(imageUrl);
         
-        // Save to history
         const generatedImage: GeneratedImage = {
           id: uuidv4(),
           url: imageUrl,
@@ -123,11 +121,16 @@ export default function Index() {
   return (
     <div className="container px-4 py-8 max-w-7xl mx-auto">
       <header className="text-center mb-8">
-        <h1 className="text-3xl md:text-4xl font-bold mb-2">
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-purple-400">
-            HuggingFace Image Generator
-          </span>
-        </h1>
+        <div className="flex justify-center items-center mb-2">
+          <h1 className="text-3xl md:text-4xl font-bold">
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-purple-400">
+              HuggingFace Image Generator
+            </span>
+          </h1>
+        </div>
+        <div className="flex justify-center items-center gap-4 mb-4">
+          <ExpoQRCode />
+        </div>
         <p className="text-muted-foreground">
           Create beautiful images with AI using the Hugging Face API
         </p>
