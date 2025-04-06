@@ -5,6 +5,7 @@ const API_BASE_URL = "https://api-inference.huggingface.co/models";
 
 export const searchModels = async (query: string, apiKey: string): Promise<any[]> => {
   try {
+    console.log("Searching models with query:", query);
     const response = await fetch(`https://huggingface.co/api/models?search=${query}&filter=image-to-image,text-to-image`, {
       headers: {
         Authorization: `Bearer ${apiKey}`
@@ -12,10 +13,13 @@ export const searchModels = async (query: string, apiKey: string): Promise<any[]
     });
 
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`Error searching models: ${response.status}`, errorText);
       throw new Error(`Error searching models: ${response.status}`);
     }
 
     const data = await response.json();
+    console.log(`Found ${data.length} models matching query`);
     
     return data.filter((model: any) => 
       (model.pipeline_tag === 'text-to-image' || model.pipeline_tag === 'image-to-image')
@@ -30,6 +34,17 @@ export const generateImage = async (options: GenerationOptions, apiKey: string):
   try {
     const { modelId, prompt, negativePrompt, width, height, numInferenceSteps, guidanceScale, seed } = options;
     
+    console.log("Generating image with options:", {
+      modelId,
+      prompt,
+      negativePrompt: negativePrompt ? "Present" : "None",
+      width,
+      height,
+      numInferenceSteps,
+      guidanceScale,
+      seed: seed !== undefined && seed !== null ? Number(seed) : "undefined"
+    });
+
     const payload = {
       inputs: prompt,
       parameters: {
@@ -42,6 +57,8 @@ export const generateImage = async (options: GenerationOptions, apiKey: string):
       }
     };
 
+    console.log("Sending request to:", `${API_BASE_URL}/${modelId}`);
+    
     const response = await fetch(`${API_BASE_URL}/${modelId}`, {
       method: 'POST',
       headers: {
@@ -51,12 +68,17 @@ export const generateImage = async (options: GenerationOptions, apiKey: string):
       body: JSON.stringify(payload)
     });
 
+    console.log("Response status:", response.status);
+    
     if (!response.ok) {
-      throw new Error(`Error generating image: ${response.statusText}`);
+      const errorText = await response.text();
+      console.error(`Error generating image: ${response.status}`, errorText);
+      throw new Error(`Error generating image: ${response.statusText} (${response.status})`);
     }
 
     // The response is the binary image data
     const blob = await response.blob();
+    console.log("Received blob:", blob.type, blob.size, "bytes");
     return URL.createObjectURL(blob);
   } catch (error) {
     console.error('Error generating image:', error);

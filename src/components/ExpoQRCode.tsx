@@ -8,8 +8,10 @@ import { QrCode } from 'lucide-react';
 export default function ExpoQRCode() {
   const [isOpen, setIsOpen] = useState(false);
   
-  // Get the current URL to create QR code
+  // Generate an expo URL for the QR code - this should be your app's URL
+  // For Expo Go, the URL should typically be the URL of your app or API
   const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
+  const expoUrl = `exp://${window.location.hostname}:${window.location.port}`;
   
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -25,11 +27,20 @@ export default function ExpoQRCode() {
         </DialogHeader>
         <div className="flex flex-col items-center justify-center p-6">
           <div className="bg-white p-4 rounded-md">
-            <QRCodeSVG value={currentUrl} size={200} />
+            <QRCodeSVG value={expoUrl} size={200} />
           </div>
           <p className="text-sm text-center mt-4 text-muted-foreground">
             Scan this QR code with your Expo Go app to open this application on your mobile device.
           </p>
+          <div className="mt-4 text-center">
+            <p className="text-sm font-medium">Steps to use with Expo Go:</p>
+            <ol className="text-sm text-muted-foreground text-left list-decimal pl-5 mt-1 space-y-1">
+              <li>Install Expo Go app on your device</li>
+              <li>Make sure your device is connected to the same network as your computer</li>
+              <li>Scan this QR code with the Expo Go app</li>
+              <li>If you have issues connecting, try using an Expo development build</li>
+            </ol>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
