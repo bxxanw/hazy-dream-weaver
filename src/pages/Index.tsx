@@ -33,7 +33,6 @@ export default function Index() {
   const [error, setError] = useState<string | null>(null);
   const [history, setHistory] = useState<GeneratedImage[]>([]);
   const [activeTab, setActiveTab] = useState<string>('generate');
-  const [progress, setProgress] = useState<number>(0);
   
   useEffect(() => {
     loadHistory();
@@ -42,19 +41,6 @@ export default function Index() {
   const loadHistory = () => {
     const savedHistory = getGeneratedImages();
     setHistory(savedHistory);
-  };
-
-  const handleProgress = (progressPercent: number) => {
-    setProgress(progressPercent);
-  };
-
-  const handleCancel = () => {
-    setIsGenerating(false);
-    setProgress(0);
-    toast({
-      title: "Generation Cancelled",
-      description: "Image generation has been cancelled.",
-    });
   };
 
   const handleGenerate = async () => {
@@ -78,7 +64,6 @@ export default function Index() {
 
     setError(null);
     setIsGenerating(true);
-    setProgress(0);
 
     try {
       const options: Options = {
@@ -92,7 +77,7 @@ export default function Index() {
         modelId: selectedModel,
       };
 
-      const imageUrl = await generateImage(options, apiKey, handleProgress);
+      const imageUrl = await generateImage(options, apiKey);
       
       if (imageUrl) {
         setGeneratedImageUrl(imageUrl);
@@ -130,7 +115,6 @@ export default function Index() {
       });
     } finally {
       setIsGenerating(false);
-      setProgress(0);
     }
   };
 
@@ -229,8 +213,6 @@ export default function Index() {
                   isLoading={isGenerating}
                   error={error}
                   prompt={prompt}
-                  progress={progress}
-                  onCancel={handleCancel}
                 />
               </div>
             </TabsContent>
